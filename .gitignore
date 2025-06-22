@@ -1,0 +1,46 @@
+# SBT specific
+target/
+project/target/
+project/project/
+.cache/
+.history/
+.lib/
+dist/*
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala specific
+*.class
+*.log
+
+# IDE specific
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.metals/
+.bloop/
+.bsp/
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Spark specific
+spark-warehouse/
+derby.log
+metastore_db/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
