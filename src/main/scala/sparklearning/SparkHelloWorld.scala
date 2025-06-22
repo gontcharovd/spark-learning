@@ -1,4 +1,4 @@
-package libname
+package sparklearning
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.avg
