@@ -10,5 +10,3 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion,
   "org.apache.spark" %% "spark-sql" % sparkVersion
 )
-
-javacOptions ++= Seq("-source", "11", "-target", "11")
