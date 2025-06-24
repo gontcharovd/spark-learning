@@ -3,18 +3,17 @@ package sparklearning
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions
 
-object SparkHelloWorld {
-  def main(args: Array[String]): Unit = {
+object CountryData {
     val spark = SparkSession
       .builder()
-      .appName("Hello_World")
+      .appName("spark_learning")
       .master("local[*]")
       .getOrCreate()
 
     val path = "src/main/resources/data/country_full.csv"
     val df = spark.read.option("header", "true").csv(path)
-
-    val count_df = df.groupBy("region").agg(functions.count("region"))
-    count_df.show()
-  }
+    val count_df = df
+      .where(functions.col("region").isNotNull)
+      .groupBy("region")
+      .agg(functions.count("region"))
 }

@@ -44,3 +44,6 @@ metastore_db/
 *.swp
 *.swo
 *~
+
+# big data
+data/
