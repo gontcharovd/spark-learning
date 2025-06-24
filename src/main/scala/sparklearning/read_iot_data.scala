@@ -1,6 +1,8 @@
 package sparklearning
 
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{functions => F}
+import org.apache.spark.sql.types.{StringType, IntegerType, DateType}
 
 object IOTData {
   val spark = SparkSession
@@ -10,16 +12,36 @@ object IOTData {
     .getOrCreate()
 
   val path = "data/IOT-temp.csv"
-  val raw_df = spark.read.option("header", "true").csv(path)
+  val bronze_df = spark.read.option("header", "true").csv(path)
+  val silver_df = bronze_df
+    .withColumnRenamed("room_id/id", "room_id")
+    .withColumnRenamed("out/in", "out_in")
+    .withColumn("temp", F.col("temp").cast(IntegerType))
+    .withColumn(
+      "noted_date",
+      F.to_timestamp(F.col("noted_date"), "dd-MM-yyyy HH:mm")
+    )
 
-  raw_df.show()
+  import spark.implicits._
+  val iot_ds = silver_df.as[IOTDataTypes]
 
-  // case class IOTDAta(
-  //   id: String,
-  //   room_id/id: String,
-  //   noted_date: Date, 
-  //   temp: Float,
-  //   out/in: String
-  // )
+  val warm_ds = iot_ds
+    .select("room_id", "out_in", "temp")
+    .filter(v => {v.temp > 30 && v.out_in == "Out"})
+    .as[WarmIOTDataTypes]
 
 }
+
+case class IOTDataTypes(
+  id: String,
+  room_id: String,
+  noted_date: String, 
+  temp: Integer,
+  out_in: String
+)
+
+case class WarmIOTDataTypes(
+  room_id: String,
+  out_in: String,
+  temp: Integer
+)

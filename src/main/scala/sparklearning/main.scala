@@ -6,17 +6,17 @@ import org.apache.spark.sql.functions
 object LearningSpark {
   def main(args: Array[String]): Unit = {
 
-    val count_df = CountryData.count_df
-    count_df.show()
+    // val count_df = CountryData.count_df
+    // count_df.show()
 
-    val row = RowHelper.row
-    println(row)
+    // val row = RowHelper.row
+    // println(row)
     
-    val element = row.getInt(0)
-    println(element)
+    // val element = row.getInt(0)
+    // println(element)
 
-    val iot_df = IOTData.raw_df
-    iot_df.show()
-
+    val warm_ds = IOTData.warm_ds
+    warm_ds.printSchema()
+    warm_ds.show()
   }
 }
