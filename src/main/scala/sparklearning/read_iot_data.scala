@@ -4,6 +4,20 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.{functions => F}
 import org.apache.spark.sql.types.{StringType, IntegerType, DateType}
 
+case class IOTDataTypes(
+  id: String,
+  room_id: String,
+  noted_date: String, 
+  temp: Integer,
+  out_in: String
+)
+
+case class WarmIOTDataTypes(
+  room_id: String,
+  out_in: String,
+  temp: Integer
+)
+
 object IOTData {
   val spark = SparkSession
     .builder()
@@ -26,22 +40,6 @@ object IOTData {
   val iot_ds = silver_df.as[IOTDataTypes]
 
   val warm_ds = iot_ds
-    .select("room_id", "out_in", "temp")
+    .map(v => WarmIOTDataTypes(v.room_id, v.out_in, v.temp))
     .filter(v => {v.temp > 30 && v.out_in == "Out"})
-    .as[WarmIOTDataTypes]
-
 }
-
-case class IOTDataTypes(
-  id: String,
-  room_id: String,
-  noted_date: String, 
-  temp: Integer,
-  out_in: String
-)
-
-case class WarmIOTDataTypes(
-  room_id: String,
-  out_in: String,
-  temp: Integer
-)
