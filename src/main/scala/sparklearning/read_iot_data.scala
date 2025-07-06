@@ -42,4 +42,10 @@ object IOTData {
   val warm_ds = iot_ds
     .map(v => WarmIOTDataTypes(v.room_id, v.out_in, v.temp))
     .filter(v => {v.temp > 30 && v.out_in == "Out"})
+  
+  // Equivalent Dataframe API
+  val warm_df = silver_df
+    .select("room_id", "out_in", "temp")
+    .filter(F.col("temp") > 30 && F.col("out_in") === "Out")
+
 }

@@ -15,8 +15,9 @@ object LearningSpark {
     // val element = row.getInt(0)
     // println(element)
 
-    val warm_ds = IOTData.warm_ds
-    warm_ds.printSchema()
-    warm_ds.show()
+    // val warm_ds = IOTData.warm_ds
+    // warm_ds.show()
+    // warm_ds.explain(true)
+
   }
 }
