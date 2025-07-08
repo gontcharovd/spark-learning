@@ -51,6 +51,23 @@ object IOT {
 
     warm_ds.explain(true)
     warm_df.explain(true)
+
+    spark.sql(s"""
+      CREATE TABLE iot_tbl (
+        id STRING,
+        room_id STRING,
+        noted_date STRING, 
+        temp INT,
+        out_in STRING
+      )
+      USING csv
+      LOCATION '/home/denis/code/spark-learning/data/IOT-temp.csv'
+    """)
+
+    spark.catalog.listTables().show()
+
+    spark.sql("SELECT * FROM iot_tbl LIMIT 5").show()
+
     spark.stop()
   }
 }
