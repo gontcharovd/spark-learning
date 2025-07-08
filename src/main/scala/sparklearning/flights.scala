@@ -12,58 +12,59 @@ object Flights {
 
   val csvFile = "data/flights/departuredelays.csv"
 
-  val schema = StructType(
-    Array(
-      StructField("date", StringType),
-      StructField("delay", IntegerType),
-      StructField("distance", IntegerType),
-      StructField("origin", StringType),
-      StructField("destination", StringType)
-    )
-  )
-
-  val schema_str = """`date` STRING, `delay` INT, `distance` INT,
+  val schema= """`date` STRING, `delay` INT, `distance` INT,
     `origin` STRING, `destination` STRING"""
 
   val flights_df = spark.read
     .option("header", "true")
-    .schema(schema_str)
+    .schema(schema)
     .csv(csvFile)
 
-  flights_df.createOrReplaceTempView("flights_tbl")
-
   def main(args: Array[String]): Unit = {
-    val head_df = spark.sql("SELECT * FROM flights_tbl LIMIT 5")
+    spark.sql("CREATE DATABASE flights_db")
+    spark.sql("USE flights_db")
+
+    flights_df.createOrReplaceTempView("flights_view")
 
     val long_flights_df = spark.sql("""
       SELECT date, distance, origin, destination
-      FROM flights_tbl
+      FROM flights_view
       WHERE distance > 1000
       ORDER BY distance DESC
       LIMIT 10
       """)
 
     // long_flights_df.show()
-    
-    spark.sql("""
-      CREATE TABLE us_delay_flights_tbl(
+
+    // Table from CSV
+    // This doesn't work
+    spark.sql(s"""
+      CREATE TABLE flights_tbl_csv (
         date STRING,
         delay INT,
         distance INT,
         origin STRING,
         destination STRING
       )
-      USING csv
-      OPTIONS (PATH 'data/flights/departuredelays.csv')
+      USING com.databricks.spark.csv
+      OPTIONS (
+        PATH '${csvFile}',
+        header 'true'
+      )
     """)
 
-    val us_delay_flights_tbl = spark.sql("SELECT * FROM us_delay_flights_tbl LIMIT 5")
+    spark.catalog.listTables().show()
 
-    us_delay_flights_tbl.show()
+    val df = spark
+      .read
+      .format("csv")
+      .option("header", "true")
+      .option("inferSchema", "true")
+      .load(csvFile)
+
+    df.show()
 
     // clean shutdown
     spark.stop()
   }
 }
-
-
