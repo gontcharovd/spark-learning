@@ -66,10 +66,8 @@ object Flights {
     """)
 
     spark.catalog.listTables().show()
-
     spark.sql("CACHE LAZY TABLE flights_tbl_csv")
-
-    spark.sql("SELECT * FROM flights_tbl_csv LIMIT 10").show()
+    spark.sql("SELECT * FROM flights_tbl_csv LIMIT 10")
 
     // clean shutdown
     spark.stop()
