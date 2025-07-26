@@ -3,20 +3,8 @@ package sparklearning
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.{functions => F}
 import org.apache.spark.sql.types.{StringType, IntegerType, DateType}
-
-case class IOTDataTypes(
-  id: String,
-  room_id: String,
-  noted_date: String, 
-  temp: Integer,
-  out_in: String
-)
-
-case class WarmIOTDataTypes(
-  room_id: String,
-  out_in: String,
-  temp: Integer
-)
+import org.apache.spark.sql.{Encoder, Encoders}
+import scala.reflect.runtime.universe.TypeTag
 
 object IOT {
   val spark = SparkSession
@@ -24,6 +12,32 @@ object IOT {
     .appName("spark_learning")
     .master("local[*]")
     .getOrCreate()
+
+  case class IOTDataTypes(
+      id: String,
+      room_id: String,
+      noted_date: String,
+      temp: Integer,
+      out_in: String
+  )
+
+  case class WarmIOTDataTypes(
+      room_id: String,
+      out_in: String,
+      temp: Integer
+  )
+
+  import scala.reflect.runtime.universe._
+
+  implicit val IOTDataTypesTypeTag: TypeTag[IOTDataTypes] =
+    typeTag[IOTDataTypes]
+  implicit val WarmIOTDataTypesTypeTag: TypeTag[WarmIOTDataTypes] =
+    typeTag[WarmIOTDataTypes]
+
+  implicit val IOTDataTypesEncoder: Encoder[IOTDataTypes] =
+    Encoders.product[IOTDataTypes]
+  implicit val WarmIOTDataTypesEncoder: Encoder[WarmIOTDataTypes] =
+    Encoders.product[WarmIOTDataTypes]
 
   val path = "data/IOT-temp.csv"
   val bronze_df = spark.read.option("header", "true").csv(path)
@@ -42,8 +56,8 @@ object IOT {
   def main(args: Array[String]): Unit = {
     val warm_ds = iot_ds
       .map(v => WarmIOTDataTypes(v.room_id, v.out_in, v.temp))
-      .filter(v => {v.temp > 30 && v.out_in == "Out"})
-    
+      .filter(v => { v.temp > 30 && v.out_in == "Out" })
+
     // Equivalent Dataframe API
     val warm_df = silver_df
       .select("room_id", "out_in", "temp")

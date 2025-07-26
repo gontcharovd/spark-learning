@@ -1,12 +1,14 @@
 name := "spark-learning"
-
 version := "0.1"
+scalaVersion := "3.3.3"
 
-scalaVersion := "2.12.17"
-
-val sparkVersion = "3.3.0"
+val sparkVersion = "4.0.0"
 
 libraryDependencies ++= Seq(
-  "org.apache.spark" %% "spark-core" % sparkVersion,
-  "org.apache.spark" %% "spark-sql" % sparkVersion
+  // Spark dependencies with CrossVersion
+  ("org.apache.spark" %% "spark-core" % sparkVersion).cross(CrossVersion.for3Use2_13),
+  ("org.apache.spark" %% "spark-sql" % sparkVersion).cross(CrossVersion.for3Use2_13),
+  
+  // scala-reflect for TypeTags - use Scala 2.13 version without CrossVersion
+  "org.scala-lang" % "scala-reflect" % "2.13.12"
 )
