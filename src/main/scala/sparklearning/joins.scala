@@ -2,7 +2,8 @@ package sparklearning
 
 import scala.util.Random
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.SaveMode
 
 object Joins {
   val spark = SparkSession
@@ -28,8 +29,10 @@ object Joins {
     // Import implicits to enable toDF method
     import spark.implicits._
 
+    val count: Int = 100000
+
     // Create DataFrames
-    val usersDF = (0 to 1000000)
+    val usersDF = (0 to count)
       .map(id => (
         id, 
         s"user_${id}", 
@@ -38,11 +41,11 @@ object Joins {
       ))
       .toDF("uid", "login", "email", "user_state")
 
-    val ordersDF = (0 to 1000000)
+    val ordersDF = (0 to count)
       .map(r => (
         r, 
         rnd.nextInt(100), 
-        rnd.nextInt(10000), 
+        rnd.nextInt(count), 
         10 * r * 0.2d, 
         states(rnd.nextInt(5)), 
         items(rnd.nextInt(5))
@@ -54,6 +57,35 @@ object Joins {
 
     // Show the joined results
     usersOrdersDF.show(false)
+
+    usersDF
+      .orderBy(asc("uid"))
+      .write
+      .format("parquet")
+      .bucketBy(8, "uid")
+      .mode(SaveMode.Overwrite)
+      .saveAsTable("UsersTbl")
+
+    ordersDF
+      .orderBy(asc("users_id"))
+      .write
+      .format("parquet")
+      .bucketBy(8, "users_id")
+      .mode(SaveMode.Overwrite)
+      .saveAsTable("OrdersTbl")
+
+    spark.sql("CACHE TABLE UsersTbl")
+    spark.sql("CACHE TABLE OrdersTbl")
+
+    val usersBucketDf = spark.read.table("OrdersTbl")
+    val ordersBucketDf = spark.read.table("UsersTbl")
+
+    val usersOrdersBucketDF = ordersBucketDf.join(usersBucketDf, $"users_id"===$"uid")
+
+    usersOrdersBucketDF.show()
+
+    spark.sql("DROP TABLE UsersTbl")
+    spark.sql("DROP TABLE OrdersTbl")
 
     spark.stop()
   }
