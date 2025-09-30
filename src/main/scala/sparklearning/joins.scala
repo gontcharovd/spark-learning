@@ -74,13 +74,10 @@ object Joins {
       .mode(SaveMode.Overwrite)
       .saveAsTable("OrdersTbl")
 
-    spark.sql("CACHE TABLE UsersTbl")
-    spark.sql("CACHE TABLE OrdersTbl")
+    val usersBucketDF = spark.read.table("UsersTbl")
+    val ordersBucketDF = spark.read.table("OrdersTbl")
 
-    val usersBucketDf = spark.read.table("OrdersTbl")
-    val ordersBucketDf = spark.read.table("UsersTbl")
-
-    val usersOrdersBucketDF = ordersBucketDf.join(usersBucketDf, $"users_id"===$"uid")
+    val usersOrdersBucketDF = ordersBucketDF.join(usersBucketDF, $"users_id"===$"uid")
 
     usersOrdersBucketDF.show()
 
