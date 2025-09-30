@@ -69,6 +69,10 @@ object Flights {
     spark.sql("CACHE LAZY TABLE flights_tbl_csv")
     spark.sql("SELECT * FROM flights_tbl_csv LIMIT 10")
 
+    // spark.sql("DROP TABLE flights_managed_tbl")
+    // spark.sql("DROP TABLE flights_tbl_csv")
+    spark.sql("DROP DATABASE flights_db CASCADE")
+
     // clean shutdown
     spark.stop()
   }
